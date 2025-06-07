@@ -2,7 +2,6 @@ package com.ev.management.demo.controller;
 
 import com.ev.management.demo.dto.VehicleDTO;
 import com.ev.management.demo.entity.Vehicle;
-import com.ev.management.demo.mapper.VehicleMapper;
 import com.ev.management.demo.service.VehicleService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -19,29 +18,31 @@ public class VehicleController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<VehicleDTO> addVehicle(@RequestBody VehicleDTO dto) {        ;
+    public ResponseEntity<VehicleDTO> addVehicle(@RequestBody VehicleDTO dto) {
         Vehicle vehicle = vehicleService.addVehicle(dto);
-        return ResponseEntity.ok(VehicleMapper.toDto(vehicle));
+        return ResponseEntity.ok(vehicle.toDto());
     }
 
     @GetMapping("/all")
-    public Page<Vehicle> getAllVehicles(
+    public Page<VehicleDTO> getAllVehicles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String direction) {
-        return vehicleService.getAllVehicles(page, size, sortBy, direction);
+        Page<Vehicle> vehiclePage = vehicleService.getAllVehicles(page, size, sortBy, direction);
+        return vehiclePage.map(Vehicle::toDto);
     }
 
     @GetMapping("/{vin}")
-    public ResponseEntity<Vehicle> getVehicles(@PathVariable String vin) {
-        return ResponseEntity.ok(vehicleService.getVehicleByVin(vin));
+    public ResponseEntity<VehicleDTO> getVehicle(@PathVariable String vin) {
+        Vehicle vehicle = vehicleService.getVehicleByVin(vin);
+        return ResponseEntity.ok(vehicle.toDto());
     }
 
     @PutMapping("/update/{vin}")
     public ResponseEntity<VehicleDTO> updateVehicle(@RequestBody VehicleDTO dto) {
         Vehicle vehicle = vehicleService.updateVehicle(dto);
-        return ResponseEntity.ok(VehicleMapper.toDto(vehicle));
+        return ResponseEntity.ok(vehicle.toDto());
     }
 
     @DeleteMapping("/{vin}")

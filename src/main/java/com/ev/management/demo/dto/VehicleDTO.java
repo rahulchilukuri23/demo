@@ -44,7 +44,7 @@ public class VehicleDTO {
     public BigDecimal baseMsrp;
 
     @JsonProperty("legislative_district")
-    public String legislativeDistrict;
+    public int legislativeDistrict;
 
     @JsonProperty("dol_vehicle_id")
     public long dolVehicleId;
@@ -57,6 +57,33 @@ public class VehicleDTO {
 
     @JsonProperty("census_tract")
     public String censusTract;
+
+    public VehicleDTO() {
+
+    }
+
+    public VehicleDTO(String vin, String make, String model, int modelYear,
+                      int electricRange, BigDecimal baseMsrp, String vehicleType,
+                      String fuelEligibility, int legislativeDistrict, String state,
+                      String city, String county, String postalCode, String censusTract,
+                      String vehicleLocation, String utility) {
+        this.vin = vin;
+        this.make = make;
+        this.model = model;
+        this.modelYear = modelYear;
+        this.electricRange = electricRange;
+        this.baseMsrp = baseMsrp;
+        this.vehicleType = vehicleType;
+        this.fuelEligibility = fuelEligibility;
+        this.legislativeDistrict = legislativeDistrict;
+        this.state = state;
+        this.city = city;
+        this.county = county;
+        this.postalCode = postalCode;
+        this.censusTract = censusTract;
+        this.vehicleLocation = vehicleLocation;
+        this.utility = utility;
+    }
 
     public String getVin() {
         return vin;
@@ -154,11 +181,11 @@ public class VehicleDTO {
         this.baseMsrp = baseMsrp;
     }
 
-    public String getLegislativeDistrict() {
+    public int getLegislativeDistrict() {
         return legislativeDistrict;
     }
 
-    public void setLegislativeDistrict(String legislativeDistrict) {
+    public void setLegislativeDistrict(int legislativeDistrict) {
         this.legislativeDistrict = legislativeDistrict;
     }
 

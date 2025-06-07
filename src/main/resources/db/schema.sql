@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS ev_management.vehicles (
     electric_range INT,
     base_msrp NUMERIC,
     dol_vehicle_id BIGINT,
-    legislative_district TEXT,
+    legislative_district INT,
     location_id INT REFERENCES ev_management.location(id),
     utility_id INT REFERENCES ev_management.utilities(id)
 );

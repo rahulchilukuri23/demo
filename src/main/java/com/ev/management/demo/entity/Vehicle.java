@@ -1,6 +1,8 @@
 package com.ev.management.demo.entity;
 
 import java.math.BigDecimal;
+
+import com.ev.management.demo.dto.VehicleDTO;
 import jakarta.persistence.*;
 
 @Entity
@@ -35,7 +37,7 @@ public class Vehicle {
     private Long dolVehicleId;
 
     @Column(name = "legislative_district")
-    private String legislativeDistrict;
+    private int legislativeDistrict;
 
     @ManyToOne
     @JoinColumn(name = "location_id")
@@ -109,11 +111,11 @@ public class Vehicle {
         this.dolVehicleId = dolVehicleId;
     }
 
-    public String getLegislativeDistrict() {
+    public int getLegislativeDistrict() {
         return legislativeDistrict;
     }
 
-    public void setLegislativeDistrict(String legislativeDistrict) {
+    public void setLegislativeDistrict(int legislativeDistrict) {
         this.legislativeDistrict = legislativeDistrict;
     }
 
@@ -131,5 +133,36 @@ public class Vehicle {
 
     public void setUtility(Utility utility) {
         this.utility = utility;
+    }
+
+    public VehicleDTO toDto() {
+        VehicleDTO vehicleDTO = new VehicleDTO();
+        vehicleDTO.setVin(this.getVin());
+        vehicleDTO.setBaseMsrp(this.getBaseMsrp());
+        vehicleDTO.setLegislativeDistrict(this.getLegislativeDistrict());
+        vehicleDTO.setDolVehicleId(this.getDolVehicleId());
+
+        Location location = this.getLocation();
+        vehicleDTO.setState(location.getStateCode());
+        vehicleDTO.setCounty(location.getCounty());
+        vehicleDTO.setCity(location.getCounty());
+        vehicleDTO.setPostalCode(location.getPostalCode());
+        vehicleDTO.setCensusTract(location.getCensusTract());
+        vehicleDTO.setVehicleLocation(location.getCoordinates());
+
+        VehicleModel model = this.getModel();
+        vehicleDTO.setMake(model.getMake());
+        vehicleDTO.setModel(model.getModel());
+        vehicleDTO.setModelYear(model.getModelYear());
+
+        VehicleType vehicleType = this.getType();
+        vehicleDTO.setVehicleType(vehicleType.getType());
+
+        FuelEligibility fuelEligibility = this.getFuelEligibility();
+        vehicleDTO.setFuelEligibility(fuelEligibility.getDescription());
+
+        Utility utility = this.getUtility();
+        vehicleDTO.setUtility(utility.getName());
+        return vehicleDTO;
     }
 }
