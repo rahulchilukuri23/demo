@@ -9,6 +9,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -190,5 +191,20 @@ public class VehicleService {
             throw new EntityNotFoundException("Vehicle with VIN " + vin + " not found");
         }
         vehicleRepository.deleteByVin(vin);
+    }
+
+    // Service method to fetch vehicles by modelId
+    public void updateVehicleMSRPByModelId(String model, BigDecimal newMsrp) {
+        Optional<VehicleModel> vehicleModelOptional = vehicleModelRepository.findByModelIgnoreCase(model);
+        if(vehicleModelOptional.isEmpty()) {
+            throw new EntityNotFoundException("Vehicle Model " + model + " not found");
+        }
+        List<Vehicle> vehicles = vehicleRepository.findByModelId(vehicleModelOptional.get().getId());
+        if(!vehicles.isEmpty()) {
+            for(Vehicle vehicle: vehicles) {
+                vehicle.setBaseMsrp(newMsrp);
+                vehicleRepository.save(vehicle);
+            }
+        }
     }
 }

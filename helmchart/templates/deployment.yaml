@@ -18,10 +18,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8080
-          envFrom:
-            - configMapRef:
-                name: {{ include "ev-management.fullname" . }}-config
-            - secretRef:
-                name: {{ include "ev-management.fullname" . }}-secret
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

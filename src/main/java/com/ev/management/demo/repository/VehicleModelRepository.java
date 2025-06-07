@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface   VehicleModelRepository extends JpaRepository<VehicleModel, Long> {
     Optional<VehicleModel> findByMakeIgnoreCaseAndModelIgnoreCaseAndModelYear(String make, String model, Integer year);
+    Optional<VehicleModel> findByModelIgnoreCase(String model);
 }

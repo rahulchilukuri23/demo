@@ -31,11 +31,11 @@ resources:
 autoscaling:
   enabled: true
   minReplicas: 2
-  maxReplicas: 5
-  targetCPUUtilizationPercentage: 60
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
 
 config:
-  ENVIRONMENT: "production"
+  ENVIRONMENT: "dev"
 
 secrets:
   DATABASE_PASSWORD: "changeme"

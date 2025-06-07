@@ -10,5 +10,27 @@ psql -U ev_management_user -d ev_management -f load-schema-staging-table.sql
 psql -U ev_management_user -d ev_management -f load-schema.sql
 ```
 
+# Application
+* Postgresql server 
+* Please follow the below documentation on rest endpoints
+  * [REST ENDPOINTS](rest.md)
+ 
+# Observability
+* Prometheus scraping metrics and grafana for monitoring
+  under root, observability directory contains the necessary configuration for observability
+```
+## at root to start prometheus and grafana
+docker-compose up 
+```
+*  metrics can be obtained using the url
+``` 
+http://prometheus:9090
+```
+
 
 # Deploying with Helm Charts
+* Application can be deployed with helm chart using the command
+* Deploying in default namespace
+```
+helm upgrade --install ev-management ./helmchart 
+```
