@@ -3,6 +3,7 @@ package com.ev.management.demo.dto;
 import java.math.BigDecimal;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.locationtech.jts.geom.Point;
 
 @JsonRootName(value = "vehicle")
 public class VehicleDTO {
@@ -56,7 +57,7 @@ public class VehicleDTO {
     public String utility;
 
     @JsonProperty("census_tract")
-    public String censusTract;
+    public long censusTract;
 
     public VehicleDTO() {
 
@@ -65,7 +66,7 @@ public class VehicleDTO {
     public VehicleDTO(String vin, String make, String model, int modelYear,
                       int electricRange, BigDecimal baseMsrp, String vehicleType,
                       String fuelEligibility, int legislativeDistrict, String state,
-                      String city, String county, String postalCode, String censusTract,
+                      String city, String county, String postalCode, long censusTract,
                       String vehicleLocation, String utility) {
         this.vin = vin;
         this.make = make;
@@ -213,11 +214,16 @@ public class VehicleDTO {
         this.utility = utility;
     }
 
-    public String getCensusTract() {
+    public long getCensusTract() {
         return censusTract;
     }
 
-    public void setCensusTract(String censusTract) {
+    public void setCensusTract(long censusTract) {
         this.censusTract = censusTract;
+    }
+
+    //TODO
+    public static Point getLocation(String text) {
+        return null;
     }
 }

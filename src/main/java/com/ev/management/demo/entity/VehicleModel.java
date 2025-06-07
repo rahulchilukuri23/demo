@@ -3,18 +3,25 @@ package com.ev.management.demo.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(schema = "ev_management", name = "vehicle_model",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"make", "model", "model_year"}))
+@Table(
+        name = "vehicle_model",
+        schema = "ev_management",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"make", "model", "model_year"})
+)
 public class VehicleModel {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "make", nullable = false, length = 50)
     private String make;
+
+    @Column(name = "model", nullable = false, length = 50)
     private String model;
 
-    @Column(name = "model_year")
-    private int modelYear;
+    @Column(name = "model_year", nullable = false)
+    private Integer modelYear;
 
     public Long getId() {
         return id;

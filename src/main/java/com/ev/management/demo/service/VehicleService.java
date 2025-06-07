@@ -9,6 +9,11 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class VehicleService {
 
@@ -60,25 +65,35 @@ public class VehicleService {
                         loc.setCounty(dto.getCounty());
                         loc.setStateCode(dto.getState());
                         loc.setPostalCode(dto.getPostalCode());
-                        loc.setCoordinates(dto.getVehicleLocation());
+                        loc.setCoordinates(VehicleDTO.getLocation(dto.getVehicleLocation()));
                         loc.setCensusTract(dto.getCensusTract());
                         return locationRepository.save(loc);
                     });
             vehicle.setLocation(location);
         }
 
-        // Utility
-        Utility utility = utilityRepository.findByUtilityName(dto.getUtility())
-                .orElseGet(() -> {
-                    Utility ut = new Utility();
-                    ut.setName(dto.getUtility());
-                    return utilityRepository.save(ut);
-                });
-        vehicle.setUtility(utility);
+        // Split the CSV into utility names
+        String[] utilityNames = dto.getUtility().split("\\|");
+
+        // Get or create utilities
+        List<Utility> utilities = new ArrayList<>();
+        for (String utilityName : utilityNames) {
+            Optional<Utility> utility = utilityRepository.findByName(utilityName.trim());
+            if (utility.isEmpty()) {
+                Utility ut = new Utility();
+                ut.setName(utilityName.trim());
+                utilities.add(utilityRepository.save(ut));
+            } else {
+                utilities.add(utility.get());
+            }
+        }
+
+        // Set the utilities for the vehicle
+        vehicle.setUtilities(utilities);
 
         // VehicleModel
         VehicleModel model = vehicleModelRepository
-                .findByMakeIgnoreCaseAndModelIgnoreCaseAndYear(dto.getMake(), dto.getModel(), dto.getModelYear())
+                .findByMakeIgnoreCaseAndModelIgnoreCaseAndModelYear(dto.getMake(), dto.getModel(), dto.getModelYear())
                 .orElseGet(() -> {
                     VehicleModel vm = new VehicleModel();
                     vm.setMake(dto.getMake());
@@ -119,13 +134,27 @@ public class VehicleService {
                         .orElseThrow(() -> new EntityNotFoundException("Location not found: " + dto.getPostalCode()))
         );
 
-        vehicle.setUtility(
-                utilityRepository.findByUtilityName(dto.getUtility())
-                        .orElseThrow(() -> new EntityNotFoundException("Utility not found: " + dto.getUtility()))
-        );
+        // Split the CSV into utility names
+        String[] utilityNames = dto.getUtility().split("\\|");
+
+        // Get or create utilities
+        List<Utility> utilities = new ArrayList<>();
+        for (String utilityName : utilityNames) {
+            Optional<Utility> utility = utilityRepository.findByName(utilityName.trim());
+            if (utility.isEmpty()) {
+                Utility ut = new Utility();
+                ut.setName(utilityName.trim());
+                utilities.add(utilityRepository.save(ut));
+            } else {
+                utilities.add(utility.get());
+            }
+        }
+
+        // Set the utilities for the vehicle
+        vehicle.setUtilities(utilities);
 
         vehicle.setModel(
-                vehicleModelRepository.findByMakeIgnoreCaseAndModelIgnoreCaseAndYear(dto.getMake(), dto.getModel(), dto.getModelYear())
+                vehicleModelRepository.findByMakeIgnoreCaseAndModelIgnoreCaseAndModelYear(dto.getMake(), dto.getModel(), dto.getModelYear())
                         .orElseThrow(() -> new EntityNotFoundException("Vehicle model not found: " + dto.getMake() + " " + dto.getModel()))
         );
 

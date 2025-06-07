@@ -3,7 +3,11 @@ package com.ev.management.demo.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "fuel_eligibility", schema = "ev_management")
+@Table(
+        name = "fuel_eligibility",
+        schema = "ev_management",
+        uniqueConstraints = @UniqueConstraint(columnNames = "description")
+)
 public class FuelEligibility {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

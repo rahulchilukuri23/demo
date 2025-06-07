@@ -1,29 +1,37 @@
 package com.ev.management.demo.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
+import org.locationtech.jts.geom.Point;
 
 @Entity
-@Table(schema = "ev_management", name = "location")
+@Table(name = "location", schema = "ev_management")
 public class Location {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 50)
     private String county;
+
+    @Column(length = 50)
     private String city;
 
     @Column(name = "state_code", length = 2)
     private String stateCode;
 
-    @Column(name = "postal_code", length = 5)
+    @Column(name = "postal_code", length = 10)
     private String postalCode;
 
     @Column(name = "census_tract")
-    private String censusTract;
+    private Long censusTract;
 
-    // Optional: you can store the WKT string, or use PostGIS support with Hibernate Spatial
-    @Column(columnDefinition = "geography(POINT,4326)")
-    private String coordinates;
+    @Column(columnDefinition = "geography(Point, 4326)")
+    private Point coordinates;
+
+    // Constructors
+    public Location() {}
 
     public Long getId() {
         return id;
@@ -65,19 +73,19 @@ public class Location {
         this.postalCode = postalCode;
     }
 
-    public String getCensusTract() {
+    public Long getCensusTract() {
         return censusTract;
     }
 
-    public void setCensusTract(String censusTract) {
+    public void setCensusTract(Long censusTract) {
         this.censusTract = censusTract;
     }
 
-    public String getCoordinates() {
+    public Point getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(String coordinates) {
+    public void setCoordinates(Point coordinates) {
         this.coordinates = coordinates;
     }
 }

@@ -1,30 +1,35 @@
 package com.ev.management.demo.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import com.ev.management.demo.dto.VehicleDTO;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.locationtech.jts.geom.Point;
 
 @Entity
-@Table(schema = "ev_management", name = "vehicles")
+@Table(name = "vehicle", schema = "ev_management")
 public class Vehicle {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "vin", nullable = false, unique = true, length = 50)
     private String vin;
 
-    @ManyToOne
-    @JoinColumn(name = "model_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "model_id", nullable = false, referencedColumnName = "id")
     private VehicleModel model;
 
-    @ManyToOne
-    @JoinColumn(name = "type_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "type_id", nullable = false, referencedColumnName = "id")
     private VehicleType type;
 
-    @ManyToOne
-    @JoinColumn(name = "fuel_eligibility_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fuel_eligibility_id", nullable = false, referencedColumnName = "id")
     private FuelEligibility fuelEligibility;
 
     @Column(name = "electric_range")
@@ -37,15 +42,24 @@ public class Vehicle {
     private Long dolVehicleId;
 
     @Column(name = "legislative_district")
-    private int legislativeDistrict;
+    private Integer legislativeDistrict;
 
-    @ManyToOne
-    @JoinColumn(name = "location_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false, referencedColumnName = "id")
     private Location location;
 
-    @ManyToOne
-    @JoinColumn(name = "utility_id")
-    private Utility utility;
+    @Cascade(CascadeType.REMOVE)
+    @ManyToMany
+    @JoinTable(
+            name = "vehicle_utility",
+            schema = "ev_management",
+            joinColumns = @JoinColumn(name = "vehicle_id"),
+            inverseJoinColumns = @JoinColumn(name = "utility_id")
+    )
+    private List<Utility> utilities;
+
+    // Constructors
+    public Vehicle() {}
 
     public Long getId() {
         return id;
@@ -111,11 +125,11 @@ public class Vehicle {
         this.dolVehicleId = dolVehicleId;
     }
 
-    public int getLegislativeDistrict() {
+    public Integer getLegislativeDistrict() {
         return legislativeDistrict;
     }
 
-    public void setLegislativeDistrict(int legislativeDistrict) {
+    public void setLegislativeDistrict(Integer legislativeDistrict) {
         this.legislativeDistrict = legislativeDistrict;
     }
 
@@ -127,12 +141,12 @@ public class Vehicle {
         this.location = location;
     }
 
-    public Utility getUtility() {
-        return utility;
+    public List<Utility> getUtilities() {
+        return utilities;
     }
 
-    public void setUtility(Utility utility) {
-        this.utility = utility;
+    public void setUtilities(List<Utility> utilities) {
+        this.utilities = utilities;
     }
 
     public VehicleDTO toDto() {
@@ -148,7 +162,7 @@ public class Vehicle {
         vehicleDTO.setCity(location.getCounty());
         vehicleDTO.setPostalCode(location.getPostalCode());
         vehicleDTO.setCensusTract(location.getCensusTract());
-        vehicleDTO.setVehicleLocation(location.getCoordinates());
+        vehicleDTO.setVehicleLocation(getLocation(location.getCoordinates()));
 
         VehicleModel model = this.getModel();
         vehicleDTO.setMake(model.getMake());
@@ -160,9 +174,14 @@ public class Vehicle {
 
         FuelEligibility fuelEligibility = this.getFuelEligibility();
         vehicleDTO.setFuelEligibility(fuelEligibility.getDescription());
-
-        Utility utility = this.getUtility();
-        vehicleDTO.setUtility(utility.getName());
+//TODO
+//        Utility utility = this.getUtility();
+//        vehicleDTO.setUtility(utility.getName());
         return vehicleDTO;
+    }
+
+    //TODO
+    private String getLocation(Point text) {
+        return null;
     }
 }

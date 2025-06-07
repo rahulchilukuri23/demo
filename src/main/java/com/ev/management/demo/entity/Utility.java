@@ -2,21 +2,28 @@ package com.ev.management.demo.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
-@Table(schema = "ev_management", name = "utilities")
+@Table(name = "utility", schema = "ev_management")
 public class Utility {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "name", unique = true, nullable = false, length = 255)
     private String name;
 
-    public Long getId() {
+    @ManyToMany(mappedBy = "utilities")
+    private List<Vehicle> vehicles;
+
+    // Getters and Setters
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -26,5 +33,13 @@ public class Utility {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Vehicle> getVehicles() {
+        return vehicles;
+    }
+
+    public void setVehicles(List<Vehicle> vehicles) {
+        this.vehicles = vehicles;
     }
 }

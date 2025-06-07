@@ -7,48 +7,54 @@ CREATE ROLE ev_management_user WITH LOGIN PASSWORD 'A35Hj5e%^Z';
 -- 3. Grant privileges on the schema
 GRANT USAGE, CREATE ON SCHEMA ev_management TO ev_management_user;
 
--- 4. Grant table-level privileges (for all existing tables — run again if new ones are added)
+-- 4. Grant table-level privileges (re-run if new tables added)
 GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON ALL TABLES IN SCHEMA ev_management TO ev_management_user;
 
--- 5. Fuel eligibility type
+-- 5. Enable PostGIS for spatial data support
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+-- 6. Fuel eligibility type (CAFV status)
 CREATE TABLE IF NOT EXISTS ev_management.fuel_eligibility (
     id SERIAL PRIMARY KEY,
-    description TEXT UNIQUE NOT NULL
+    description VARCHAR(255) UNIQUE NOT NULL
 );
 
--- 6. Vehicle type (e.g., BEV, PHEV)
+-- 7. Vehicle type (e.g., BEV, PHEV)
 CREATE TABLE IF NOT EXISTS ev_management.vehicle_type (
     id SERIAL PRIMARY KEY,
-    type TEXT UNIQUE NOT NULL
+    type VARCHAR(50) UNIQUE NOT NULL
 );
 
--- 7.  Geographic location
-CREATE EXTENSION IF NOT EXISTS postgis;  -- for GEOGRAPHY type
+-- 8. Electric utilities
+CREATE TABLE IF NOT EXISTS ev_management.utility (
+     id SERIAL PRIMARY KEY,
+     name VARCHAR(255) UNIQUE NOT NULL
+);
 
--- 8. Vehicle Location
+-- 9. Geographic location
 CREATE TABLE IF NOT EXISTS ev_management.location (
     id SERIAL PRIMARY KEY,
-    county TEXT,
-    city TEXT,
+    county VARCHAR(50),
+    city VARCHAR(50),
     state_code CHAR(2),
-    postal_code CHAR(5),
-    census_tract TEXT,
+    postal_code VARCHAR(10),
+    census_tract BIGINT,
     coordinates GEOGRAPHY(POINT, 4326)
 );
 
--- 9. Vehicle model info
+-- 10. Vehicle model info
 CREATE TABLE IF NOT EXISTS ev_management.vehicle_model (
     id SERIAL PRIMARY KEY,
-    make TEXT NOT NULL,
-    model TEXT NOT NULL,
-    model_year INTEGER NOT NULL,
+    make VARCHAR(50) NOT NULL,
+    model VARCHAR(50) NOT NULL,
+    model_year INT NOT NULL,
     UNIQUE(make, model, model_year)
 );
 
--- 10. Vehicles
-CREATE TABLE IF NOT EXISTS ev_management.vehicles (
+-- 11. Vehicle records (no utility_id here now)
+CREATE TABLE IF NOT EXISTS ev_management.vehicle (
     id SERIAL PRIMARY KEY,
-    vin TEXT UNIQUE NOT NULL,
+    vin VARCHAR(50) UNIQUE NOT NULL,
     model_id INT REFERENCES ev_management.vehicle_model(id),
     type_id INT REFERENCES ev_management.vehicle_type(id),
     fuel_eligibility_id INT REFERENCES ev_management.fuel_eligibility(id),
@@ -56,34 +62,35 @@ CREATE TABLE IF NOT EXISTS ev_management.vehicles (
     base_msrp NUMERIC,
     dol_vehicle_id BIGINT,
     legislative_district INT,
-    location_id INT REFERENCES ev_management.location(id),
-    utility_id INT REFERENCES ev_management.utilities(id)
+    location_id INT REFERENCES ev_management.location(id)
 );
+CREATE INDEX IF NOT EXISTS idx_vin ON ev_management.vehicle(vin);
+CREATE INDEX IF NOT EXISTS idx_vehicle_model_id ON ev_management.vehicle(model_id);
 
--- 11. Bridge table: vehicle ↔ utilities (for multiple utility providers)
-CREATE TABLE IF NOT EXISTS ev_management.vehicle_utilities (
-    vehicle_id INT REFERENCES ev_management.vehicles(id),
-    utility_id INT REFERENCES ev_management.utilities(id),
+-- 12. Vehicle ↔ Utility many-to-many join table
+CREATE TABLE IF NOT EXISTS ev_management.vehicle_utility (
+    vehicle_id INT NOT NULL REFERENCES ev_management.vehicle(id) ON DELETE CASCADE,
+    utility_id INT NOT NULL REFERENCES ev_management.utility(id) ON DELETE CASCADE,
     PRIMARY KEY (vehicle_id, utility_id)
 );
 
--- 12. Staging table (flat CSV)
+-- 13. Staging table (for raw CSV imports)
 CREATE TABLE IF NOT EXISTS ev_management.staging_ev (
-    vin TEXT,
-    county TEXT,
-    city TEXT,
+    vin VARCHAR(50),
+    county VARCHAR(50),
+    city VARCHAR(50),
     state CHAR(2),
-    postal_code CHAR(5),
+    postal_code VARCHAR(10),
     model_year INT,
-    make TEXT,
-    model TEXT,
-    vehicle_type TEXT,
-    fuel_eligibility TEXT,
+    make VARCHAR(50),
+    model VARCHAR(50),
+    vehicle_type VARCHAR(50),
+    fuel_eligibility VARCHAR(255),
     electric_range INT,
     base_msrp NUMERIC,
-    legislative_district TEXT,
+    legislative_district INT,
     dol_vehicle_id BIGINT,
-    vehicle_location TEXT, -- You may want to convert this to GEOGRAPHY(POINT, 4326)
-    utility TEXT,
-    census_tract TEXT
+    vehicle_location TEXT,
+    utility VARCHAR(255),
+    census_tract BIGINT
 );

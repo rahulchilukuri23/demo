@@ -3,13 +3,18 @@ package com.ev.management.demo.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(schema = "ev_management", name = "vehicle_type")
+@Table(
+        name = "vehicle_type",
+        schema = "ev_management",
+        uniqueConstraints = @UniqueConstraint(columnNames = "type")
+)
 public class VehicleType {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "type", nullable = false, unique = true, length = 50)
     private String type;
 
     public Long getId() {
