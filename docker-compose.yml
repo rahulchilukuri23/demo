@@ -30,7 +30,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ~/Downloads/Electric_Vehicle_Population_Data.csv:/tmp/Electric_Vehicle_Population_Data.csv
-  #      - schema.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./src/main/resources/db:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:

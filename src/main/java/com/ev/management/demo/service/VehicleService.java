@@ -3,6 +3,7 @@ package com.ev.management.demo.service;
 import com.ev.management.demo.dto.VehicleDTO;
 import com.ev.management.demo.entity.*;
 import com.ev.management.demo.repository.*;
+import com.ev.management.demo.util.LocationUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -66,7 +67,7 @@ public class VehicleService {
                         loc.setCounty(dto.getCounty());
                         loc.setStateCode(dto.getState());
                         loc.setPostalCode(dto.getPostalCode());
-                        loc.setCoordinates(VehicleDTO.getLocation(dto.getVehicleLocation()));
+                        loc.setCoordinates(LocationUtil.getLocation(dto.getVehicleLocation()));
                         loc.setCensusTract(dto.getCensusTract());
                         return locationRepository.save(loc);
                     });
@@ -143,7 +144,7 @@ public class VehicleService {
         loc.setCounty(dto.getCounty());
         loc.setStateCode(dto.getState());
         loc.setPostalCode(dto.getPostalCode());
-        loc.setCoordinates(VehicleDTO.getLocation(dto.getVehicleLocation()));
+        loc.setCoordinates(LocationUtil.getLocation(dto.getVehicleLocation()));
         loc.setCensusTract(dto.getCensusTract());
 
         // Split the CSV into utility names
@@ -194,7 +195,7 @@ public class VehicleService {
         if(sortBy == null) {
             sortBy = "id";
         }
-        Sort sort = direction.equalsIgnoreCase("desc")
+        Sort sort = "desc".equalsIgnoreCase(direction)
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 

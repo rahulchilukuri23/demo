@@ -1,116 +1,174 @@
 package com.ev.management.demo.controller;
 
 import com.ev.management.demo.dto.VehicleDTO;
-import com.ev.management.demo.entity.Vehicle;
-import com.ev.management.demo.repository.VehicleRepository;
+import com.ev.management.demo.entity.*;
 import com.ev.management.demo.service.VehicleService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(VehicleController.class)
+@ExtendWith(MockitoExtension.class)
 class VehicleControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
+    @Mock
     private VehicleService vehicleService;
 
-    @Mock
-    private VehicleRepository vehicleRepository;
+    @InjectMocks
+    private VehicleController vehicleController;
 
-    @Test
-    void addVehicle_shouldReturnVehicleDTO() throws Exception {
-        VehicleDTO dto = new VehicleDTO("ABC123", "Tesla", "Model S", 2021, 300, BigDecimal.valueOf(79999.99), "BEV", "Eligible", 370, "WA", "Seattle", "King", "98101", 53033021701L, "POINT(-122.3321 47.6062)", "PUGET UTILITY");
+    private Vehicle createVehicle(String vin) {
+        Vehicle v = spy(new Vehicle());
+        VehicleDTO dto = new VehicleDTO(vin, "Tesla", "Model S", 2021, 300, BigDecimal.valueOf(79999.99), "BEV",
+                "Eligible", 370, "WA", "Seattle", "King", "98101", 53033021701L,
+                "POINT(-122.3321 47.6062)", "PUGET UTILITY");
+        when(v.getVin()).thenReturn(vin);
+        when(v.getLegislativeDistrict()).thenReturn(370);
+        when(v.getDolVehicleId()).thenReturn(370L);
 
-        Vehicle v1 = new Vehicle();
-        v1.setVin("ABC123");
-        Mockito.when(vehicleService.addVehicle(any(VehicleDTO.class))).thenReturn(v1);
+        Location location = new Location();
+        location.setStateCode("WA");
+        location.setCounty("King");
+        location.setCity("Seattle");
+        location.setPostalCode("98101");
+        location.setCensusTract(53033021701L);
+        when(v.getLocation()).thenReturn(location);
 
-        mockMvc.perform(post("/vehicle/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(dto)))
-                .andExpect(status().isOk());
-                //.andExpect(jsonPath("$.vin").value("ABC123"));
+        VehicleModel model = new VehicleModel();
+        model.setModelYear(2021);
+        model.setModel("Model S");
+        model.setMake("Tesla");
+        when(v.getModel()).thenReturn(model);
+
+        VehicleType vehicleType = new VehicleType();
+        vehicleType.setType("BEV");
+        when(v.getType()).thenReturn(vehicleType);
+
+        FuelEligibility fuelEligibility = new FuelEligibility();
+        fuelEligibility.setDescription("Eligible");
+        when(v.getFuelEligibility()).thenReturn(fuelEligibility);
+
+        Utility ut = new Utility();
+        ut.setName("PUGET UTILITY");
+        List<Utility> utilities = List.of(ut);
+        when(v.getUtilities()).thenReturn(utilities);
+
+        return v;
     }
 
     @Test
-    void getVehicle_shouldReturnVehicleDTO() throws Exception {
-        VehicleDTO dto = new VehicleDTO("ABC123", "Tesla", "Model S", 2021, 300, BigDecimal.valueOf(79999.99), "BEV", "Eligible", 370, "WA", "Seattle", "King", "98101", 53033021701L, "POINT(-122.3321 47.6062)", "PUEGOT UTILITY");
-        Vehicle v1 = new Vehicle();
-        v1.setVin("ABC123");
-        when(vehicleService.getVehicleByVin("ABC123")).thenReturn(v1);
+    void addVehicle_ReturnsVehicleDTO() {
+        VehicleDTO inputDto = new VehicleDTO("ABC123", "Tesla", "Model S", 2021, 300, BigDecimal.valueOf(79999.99),
+                "BEV", "Eligible", 370, "WA", "Seattle", "King", "98101", 53033021701L,
+                "POINT(-122.3321 47.6062)", "PUGET UTILITY");
+        Vehicle savedVehicle = createVehicle("ABC123");
 
-        mockMvc.perform(get("/vehicle/{vin}", "ABC123"))
-                .andExpect(status().isOk());
-                //.andExpect(jsonPath("$.vin").value("ABC123"));
+        when(vehicleService.addVehicle(inputDto)).thenReturn(savedVehicle);
+
+        var response = vehicleController.addVehicle(inputDto);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals("ABC123", response.getBody().getVin());
+        verify(vehicleService).addVehicle(inputDto);
     }
 
     @Test
-    void getAllVehicles_shouldReturnPagedVehicleDTOs() throws Exception {
-        Pageable pageable = PageRequest.of(0, 10);
-        Vehicle v1 = new Vehicle(); v1.setVin("ABC123");
-        Vehicle v2 = new Vehicle(); v1.setVin("DEF456");
+    void getAllVehicles_ReturnsPagedDTOs() {
+        Vehicle v1 = createVehicle("ABC123");
+        Vehicle v2 = createVehicle("DEF123");
 
-        Page<Vehicle> vehiclePage = new PageImpl<>(List.of(v1,v2), pageable, 2);
+        List<Vehicle> vehicles = List.of(v1, v2);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<Vehicle> vehiclePage = new PageImpl<>(vehicles, pageable, vehicles.size());
 
-        when(vehicleRepository.findAll(pageable)).thenReturn(vehiclePage);
+        when(vehicleService.getAllVehicles(0, 10, "id", "asc")).thenReturn(vehiclePage);
 
-        when(vehicleService.getAllVehicles(0, 10, "vin", "asc")).thenReturn(vehiclePage);
+        Page<VehicleDTO> result = vehicleController.getAllVehicles(0, 10, "id", "asc");
 
-        mockMvc.perform(get("/vehicle/all")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("sortBy", "vin")
-                        .param("direction", "asc"))
-                .andExpect(status().isOk());
-//                .andExpect(jsonPath("$.content[0].vin").value("ABC123"))
-//                .andExpect(jsonPath("$.content[1].vin").value("DEF456"));
+        assertEquals(2, result.getTotalElements());
+        assertEquals("ABC123", result.getContent().get(0).getVin());
+        assertEquals("DEF123", result.getContent().get(1).getVin());
+        verify(vehicleService).getAllVehicles(0, 10, "id", "asc");
     }
 
     @Test
-    void updateVehicle_shouldReturnUpdatedVehicleDTO() throws Exception {
-        VehicleDTO dto = new VehicleDTO("ABC123", "Tesla", "Model S", 2021, 300, BigDecimal.valueOf(79999.99), "BEV", "Eligible", 370, "WA", "Seattle", "King", "98101", 53033021701L, "POINT(-122.3321 47.6062)", "PUGEOT UTILITY|| TACOMA");
-        Vehicle v1 = new Vehicle(); v1.setVin("ABC123");
-        when(vehicleService.updateVehicle(any(VehicleDTO.class))).thenReturn(v1);
+    void getVehicle_ReturnsVehicleDTO() {
+        Vehicle vehicle = createVehicle("ABC123");
+        when(vehicleService.getVehicleByVin("ABC123")).thenReturn(vehicle);
 
-        mockMvc.perform(put("/vehicle/update/{vin}", "ABC123")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(dto)))
-                .andExpect(status().isOk());
-                //.andExpect(jsonPath("$.vin").value("ABC123"));
+        var response = vehicleController.getVehicle("ABC123");
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("ABC123", response.getBody().getVin());
+        verify(vehicleService).getVehicleByVin("ABC123");
     }
 
     @Test
-    void deleteVehicle_shouldReturnSuccessMessage() throws Exception {
-        doNothing().when(vehicleService).deleteVehicleByVin("ABC123");
+    void updateVehicle_ReturnsUpdatedDTO() {
+        VehicleDTO inputDto = new VehicleDTO("ABC123", "Tesla", "Model S", 2021, 300, BigDecimal.valueOf(79999.99),
+                "BEV", "Eligible", 370, "WA", "Seattle", "King", "98101", 53033021701L,
+                "POINT(-122.3321 47.6062)", "PUGET UTILITY");
+        Vehicle updatedVehicle = createVehicle("ABC123");
+        when(vehicleService.updateVehicle(inputDto)).thenReturn(updatedVehicle);
 
-        mockMvc.perform(delete("/vehicle/{vin}", "ABC123"))
-                .andExpect(status().isOk());
-                //.andExpect(content().string("Vehicle deleted"));
+        var response = vehicleController.updateVehicle(inputDto);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("ABC123", response.getBody().getVin());
+        verify(vehicleService).updateVehicle(inputDto);
+    }
+
+    @Test
+    void updateVehicleMSRP_Success() {
+        String model = "model1";
+        VehicleDTO msrpDto = new VehicleDTO();
+        msrpDto.setBaseMsrp(new BigDecimal("25000"));
+
+        doNothing().when(vehicleService).updateVehicleMSRPByModelId(model, msrpDto.getBaseMsrp());
+
+        var response = vehicleController.updateVehicleMSRP(model, msrpDto);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getBody().contains("Vehicle MSRP updated"));
+        verify(vehicleService).updateVehicleMSRPByModelId(model, msrpDto.getBaseMsrp());
+    }
+
+    @Test
+    void updateVehicleMSRP_EntityNotFound() {
+        String model = "nonexistent-model";
+        VehicleDTO msrpDto = new VehicleDTO();
+        msrpDto.setBaseMsrp(new BigDecimal("30000"));
+
+        doThrow(new EntityNotFoundException("Model not found"))
+                .when(vehicleService).updateVehicleMSRPByModelId(model, msrpDto.getBaseMsrp());
+
+        var response = vehicleController.updateVehicleMSRP(model, msrpDto);
+
+        assertEquals(404, response.getStatusCodeValue());
+        assertEquals("Model not found", response.getBody());
+        verify(vehicleService).updateVehicleMSRPByModelId(model, msrpDto.getBaseMsrp());
+    }
+
+    @Test
+    void deleteVehicle_ReturnsOk() {
+        String vin = "ABC123";
+
+        doNothing().when(vehicleService).deleteVehicleByVin(anyString());
+
+        var response = vehicleController.deleteVehicle(vin);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Vehicle deleted", response.getBody());
+        verify(vehicleService).deleteVehicleByVin(vin);
     }
 }

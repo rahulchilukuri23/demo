@@ -221,9 +221,4 @@ public class VehicleDTO {
     public void setCensusTract(long censusTract) {
         this.censusTract = censusTract;
     }
-
-    //TODO
-    public static Point getLocation(String text) {
-        return null;
-    }
 }

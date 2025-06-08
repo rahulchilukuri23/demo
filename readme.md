@@ -7,7 +7,7 @@
 
 # DB Schema Setup
 * sql scripts are located at /src/main/resources/db
-* Ideally these scripts are to be run on postgresql server along with the csv file from https://data.wa.gov/api/views/f6w7-q2d2/rows.csv?accessType=DOWNLOAD
+* These scripts are to be run on postgresql server along with the csv file from https://data.wa.gov/api/views/f6w7-q2d2/rows.csv?accessType=DOWNLOAD
 * Need to update the path of the file on load-schema-staging-table.sql first when that script is to be run
 * Run these commands to prepopulate data from the csv file
 ```
@@ -15,7 +15,7 @@ psql -U ev_management_user -d ev_management -f schema.sql
 psql -U ev_management_user -d ev_management -f load-schema-staging-table.sql
 psql -U ev_management_user -d ev_management -f load-schema.sql
 ```
-* But running docker compose up at root of project will provision docker containers for database to be used locally
+* But running `docker compose up` at root of project will provision docker containers for database to be used locally
 * Open a sql client and connect to this db with the credentials laid out in docker compose file
 * run the schema.sql, load ev_staging table manually(gui) and point it to csv file, load-schema.sql from under src/main/resources/db directory
  
@@ -65,12 +65,12 @@ helm upgrade --install ev-management ./helmchart
 ```
 
 # TODO
-* Unit tests
+* Integration tests
 * POST/PUT location conversion from text to point and vice versa
 * Maintaining container registry and using suggested docker registry
 * helm chart deployment
  
 # Limitations
-* VIN data is not unique in spreadsheet.
+* VIN data is not unique in spreadsheet or unable to get the full context of this population data.
   Vehicle to Utility mapping in load schema needs to be fixed because of this issue
 

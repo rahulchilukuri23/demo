@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.ev.management.demo.dto.VehicleDTO;
+import com.ev.management.demo.util.LocationUtil;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -161,10 +162,10 @@ public class Vehicle {
         Location location = this.getLocation();
         vehicleDTO.setState(location.getStateCode());
         vehicleDTO.setCounty(location.getCounty());
-        vehicleDTO.setCity(location.getCounty());
+        vehicleDTO.setCity(location.getCity());
         vehicleDTO.setPostalCode(location.getPostalCode());
         vehicleDTO.setCensusTract(location.getCensusTract());
-        vehicleDTO.setVehicleLocation(getLocation(location.getCoordinates()));
+        vehicleDTO.setVehicleLocation(LocationUtil.getLocation(location.getCoordinates()));
 
         VehicleModel model = this.getModel();
         vehicleDTO.setMake(model.getMake());
@@ -179,7 +180,7 @@ public class Vehicle {
 
         StringBuilder builder = new StringBuilder();
         Set<String> utilitySet = new HashSet<>();
-        for(Utility utility: utilities) {
+        for(Utility utility: this.getUtilities()) {
             if(utilitySet.contains(utility.getName())) continue;
             builder.append(utility.getName()).append("|");
             utilitySet.add(utility.getName());
@@ -190,10 +191,5 @@ public class Vehicle {
             builder.setLength(builder.length()-1);
         vehicleDTO.setUtility(builder.toString());
         return vehicleDTO;
-    }
-
-    //TODO
-    private String getLocation(Point text) {
-        return null;
     }
 }

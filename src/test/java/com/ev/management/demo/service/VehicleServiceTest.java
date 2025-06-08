@@ -11,9 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -21,7 +19,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +55,8 @@ class VehicleServiceTest {
 
         Mockito.when(vehicleRepository.findByVin("ABC123")).thenReturn(Optional.empty());
         when(fuelEligibilityRepository.findByDescription("Eligible")).thenReturn(Optional.of(new FuelEligibility()));
-        when(locationRepository.findByPostalCode("98101")).thenReturn(Optional.of(new Location()));
-        when(utilityRepository.findByName("PUGET SOUND ENERGY INC")).thenReturn(Optional.of(new Utility()));
+        when(locationRepository.findByPostalCodeAndCityAndCountyAndStateCode("98101","Seattle", "King", "WA" )).thenReturn(Optional.of(new Location()));
+        when(utilityRepository.findByName("PUGET UTILITY")).thenReturn(Optional.of(new Utility()));
         when(vehicleModelRepository.findByMakeIgnoreCaseAndModelIgnoreCaseAndModelYear("Tesla", "Model S", 2021)).thenReturn(Optional.of(new VehicleModel()));
         when(vehicleTypeRepository.findByType("BEV")).thenReturn(Optional.of(new VehicleType()));
         when(vehicleRepository.save(any(Vehicle.class))).thenReturn(vehicle);
@@ -82,16 +79,21 @@ class VehicleServiceTest {
 
     @Test
     void getAllVehicles_shouldReturnPageOfVehicles() {
-        Pageable pageable = PageRequest.of(0, 10);
+        // Create vehicles with different VINs
         Vehicle v1 = new Vehicle(); v1.setVin("ABC123");
-        Vehicle v2 = new Vehicle(); v1.setVin("DEF456");
+        Vehicle v2 = new Vehicle(); v2.setVin("DEF456");
 
-        Page<Vehicle> vehiclePage = new PageImpl<>(List.of(v1,v2), pageable, 2);
+        // Create a pageable with sort vin desc
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("vin").ascending());
+        Page<Vehicle> vehiclePage = new PageImpl<>(List.of(v1, v2), pageable, 2);
 
-        when(vehicleRepository.findAll(pageable)).thenReturn(vehiclePage);
+        // Stub findAll with any Pageable - because service creates its own Pageable
+        when(vehicleRepository.findAll(any(Pageable.class))).thenReturn(vehiclePage);
 
+        // Call service method
         Page<Vehicle> result = vehicleService.getAllVehicles(0, 10, "vin", "asc");
 
+        // Assertions
         assertEquals(2, result.getContent().size());
         assertEquals("ABC123", result.getContent().get(0).getVin());
         assertEquals("DEF456", result.getContent().get(1).getVin());
@@ -113,19 +115,28 @@ class VehicleServiceTest {
         dto.setModel("Model S");
         dto.setModelYear(2021);
         dto.setVehicleType("BEV");
+        dto.setState("WA");
+        dto.setCity("Seattle");
+        dto.setCounty("King");
+        dto.setPostalCode("98101");
 
         Vehicle existingVehicle = new Vehicle();
         existingVehicle.setVin("ABC123");
 
         FuelEligibility fuelEligibility = new FuelEligibility();
-        Location location = new Location();
         Utility utility = new Utility();
         VehicleModel model = new VehicleModel();
         VehicleType type = new VehicleType();
 
+        Location location = new Location();
+        location.setStateCode("WA");
+        location.setCity("Seattle");
+        location.setCounty("King");
+        location.setPostalCode("98101");
+
         when(vehicleRepository.findByVin("ABC123")).thenReturn(Optional.of(existingVehicle));
         when(fuelEligibilityRepository.findByDescription("Eligible")).thenReturn(Optional.of(fuelEligibility));
-        when(locationRepository.findByPostalCode("98052")).thenReturn(Optional.of(location));
+        when(locationRepository.findByPostalCodeAndCityAndCountyAndStateCode("98101","Seattle", "King", "WA" )).thenReturn(Optional.of(location));
         when(utilityRepository.findByName("PSE")).thenReturn(Optional.of(utility));
         when(vehicleModelRepository.findByMakeIgnoreCaseAndModelIgnoreCaseAndModelYear("Tesla", "Model S", 2021))
                 .thenReturn(Optional.of(model));
