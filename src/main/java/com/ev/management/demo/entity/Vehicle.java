@@ -174,9 +174,13 @@ public class Vehicle {
 
         FuelEligibility fuelEligibility = this.getFuelEligibility();
         vehicleDTO.setFuelEligibility(fuelEligibility.getDescription());
-//TODO
-//        Utility utility = this.getUtility();
-//        vehicleDTO.setUtility(utility.getName());
+
+        StringBuilder builder = new StringBuilder();
+        for(Utility utility: utilities) {
+            builder.append(utility.getName()).append("|");
+        }
+        builder.setLength(builder.length()-1);
+        vehicleDTO.setUtility(builder.toString());
         return vehicleDTO;
     }
 

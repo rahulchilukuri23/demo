@@ -17,7 +17,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle,Long> {
             "type",
             "fuelEligibility",
             "location",
-            "utility"
+            "utilities"
     })
     Optional<Vehicle> findByVin(String vin);
 

@@ -1,3 +1,1 @@
-COPY staging_ev
-FROM '/absolute/path/to/your_ev_file.csv'
-DELIMITER ',' CSV HEADER;
+COPY staging_ev FROM '/absolute/path/to/your_ev_file.csv' DELIMITER ',' CSV HEADER;

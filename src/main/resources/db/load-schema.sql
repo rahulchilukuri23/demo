@@ -1,3 +1,4 @@
+
 -- Fuel eligibility
 INSERT INTO ev_management.fuel_eligibility(description)
 SELECT DISTINCT fuel_eligibility
@@ -14,7 +15,7 @@ ON CONFLICT DO NOTHING;
 
 -- Utilities (split by '||')
 INSERT INTO ev_management.utility(name)
-SELECT DISTINCT TRIM(unnest(string_to_array(utility, '||')))
+SELECT DISTINCT TRIM(unnest(string_to_array(utility, '|')))
 FROM ev_management.staging_ev
 WHERE utility IS NOT NULL
 ON CONFLICT DO NOTHING;
@@ -50,10 +51,10 @@ SELECT
     s.legislative_district,
     l.id
 FROM ev_management.staging_ev s
-JOIN ev_management.vehicle_model vm ON s.make = vm.make AND s.model = vm.model AND s.model_year = vm.model_year
-JOIN ev_management.vehicle_type vt ON s.vehicle_type = vt.type
-JOIN ev_management.fuel_eligibility fe ON s.fuel_eligibility = fe.description
-JOIN ev_management.location l ON
+         JOIN ev_management.vehicle_model vm ON s.make = vm.make AND s.model = vm.model AND s.model_year = vm.model_year
+         JOIN ev_management.vehicle_type vt ON s.vehicle_type = vt.type
+         JOIN ev_management.fuel_eligibility fe ON s.fuel_eligibility = fe.description
+         JOIN ev_management.location l ON
     s.city = l.city AND
     s.county = l.county AND
     s.state = l.state_code AND
@@ -62,15 +63,34 @@ JOIN ev_management.location l ON
 ON CONFLICT (vin) DO NOTHING;
 
 -- Vehicle ↔ Utilities many-to-many inserts
+--INSERT INTO ev_management.vehicle_utility(vehicle_id, utility_id)
+--SELECT DISTINCT
+--    v.id AS vehicle_id,
+--    u.id AS utility_id
+--FROM ev_management.staging_ev s
+--         JOIN ev_management.vehicle v ON v.vin = s.vin
+--         JOIN LATERAL unnest(string_to_array(s.utility, '|')) AS util_name(name) ON
+--         JOIN ev_management.utility u ON u.name = TRIM(util_name.name)
+--WHERE s.utility IS NOT NULL
+--ON CONFLICT DO NOTHING;
+
+-- INSERT INTO ev_management.vehicle_utility(vehicle_id, utility_id)
+-- SELECT a.id,b.id from (select v.id,
+--                               unnest(string_to_array(utility, '|')) AS tag
+--                        from ev_management.staging_ev a,
+--                             ev_management.vehicle v
+--                        where a.vin = v.vin) a , ev_management.utility b  where tag <> ''
+--                                                                            and a.tag = b.name
+
+-- ON CONFLICT DO NOTHING;
+
 INSERT INTO ev_management.vehicle_utility(vehicle_id, utility_id)
 SELECT DISTINCT
     v.id AS vehicle_id,
     u.id AS utility_id
 FROM ev_management.staging_ev s
 JOIN ev_management.vehicle v ON v.vin = s.vin
-JOIN LATERAL unnest(string_to_array(s.utility, '||')) AS util_name(name)
+JOIN LATERAL unnest(string_to_array(s.utility, '|')) AS util_name(name) ON TRUE
 JOIN ev_management.utility u ON u.name = TRIM(util_name.name)
-WHERE s.utility IS NOT NULL
+WHERE s.utility IS NOT NULL and util_name.name <> ''
 ON CONFLICT DO NOTHING;
-
-DROP TABLE IF EXISTS ev_management.staging_ev;

@@ -186,6 +186,7 @@ public class VehicleService {
         return vehicleRepository.findAll(pageable);
     }
 
+    @Transactional
     public void deleteVehicleByVin(String vin) {
         if (!vehicleRepository.existsByVin(vin)) {
             throw new EntityNotFoundException("Vehicle with VIN " + vin + " not found");
@@ -194,17 +195,23 @@ public class VehicleService {
     }
 
     // Service method to fetch vehicles by modelId
+    @Transactional
     public void updateVehicleMSRPByModelId(String model, BigDecimal newMsrp) {
-        Optional<VehicleModel> vehicleModelOptional = vehicleModelRepository.findByModelIgnoreCase(model);
+        Optional<List<VehicleModel>> vehicleModelOptional = vehicleModelRepository.findByModelIgnoreCase(model);
         if(vehicleModelOptional.isEmpty()) {
             throw new EntityNotFoundException("Vehicle Model " + model + " not found");
         }
-        List<Vehicle> vehicles = vehicleRepository.findByModelId(vehicleModelOptional.get().getId());
-        if(!vehicles.isEmpty()) {
-            for(Vehicle vehicle: vehicles) {
-                vehicle.setBaseMsrp(newMsrp);
-                vehicleRepository.save(vehicle);
+
+        List<Vehicle> allMatchingVehicles = new ArrayList<>();
+        for(VehicleModel vehicleModel: vehicleModelOptional.get()) {
+            List<Vehicle> vehicles = vehicleRepository.findByModelId(vehicleModel.getId());
+            if(!vehicles.isEmpty()) {
+                for(Vehicle vehicle: vehicles) {
+                    vehicle.setBaseMsrp(newMsrp);
+                }
             }
+            allMatchingVehicles.addAll(vehicles);
         }
+        vehicleRepository.saveAll(allMatchingVehicles);
     }
 }
