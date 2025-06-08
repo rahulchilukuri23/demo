@@ -27,12 +27,12 @@
     },
     {
       "id": 2,
-      "title": "Memory Usage (Available bytes)",
+      "title": "JVM Memory Used Bytes",
       "type": "graph",
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "node_memory_MemAvailable_bytes",
+          "expr": "jvm_memory_used_bytes",
           "legendFormat": "{{instance}}",
           "refId": "A"
         }
@@ -62,7 +62,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "jdbc_connections",
+          "expr": "jdbc_connections_active",
           "legendFormat": "{{instance}}",
           "refId": "A"
         }
@@ -72,12 +72,12 @@
     },
     {
       "id": 5,
-      "title": "HTTP Server Requests Histogram",
+      "title": "P95 HTTP Server Requests Histogram",
       "type": "graph",
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "rate(http_server_requests_seconds_bucket[1m])",
+          "expr": "histogram_quantile(0.95,sum(rate(http_server_requests_seconds_bucket[1m])) by (le))",
           "legendFormat": "{{le}}",
           "refId": "A"
         }

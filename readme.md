@@ -28,12 +28,13 @@ psql -U ev_management_user -d ev_management -f load-schema.sql
  
 # Observability
 * Prometheus scraping metrics and grafana for monitoring
-  under root, monitoring directory contains the necessary configuration for observability
 * Workflow
- 
+
   ![img.png](img.png)
 * Prometheus UI:
-  ``` 
+  ```
+  http://localhost:8080/swagger-ui/index.html#/Actuator/scrape
+  or
   http://localhost:9090/status
   http://localhost:9090/config
   http://localhost:9090/targets
@@ -45,14 +46,15 @@ psql -U ev_management_user -d ev_management -f load-schema.sql
   ``` 
   http://localhost:3000/
   ```
-* Below metrics can be added in graphana dashboard as visualization
+* Below are some of the metrics that can be added as visualizations in graphana dashboard 
 ```
 spring_data_repository_invocations_seconds_count
 spring_data_repository_invocations_seconds_sum
 spring_data_repository_invocations_seconds_max
 http_server_requests_seconds_bucket
 ```
-* A dashboard is provisioned [here](http://localhost:3000/d/ev-management-metrics/application-metrics-dashboard?orgId=1&refresh=15s)
+
+* A dashboard is provisioned [here](http://localhost:3000/d/ev-management-metrics/application-metrics-dashboard?orgId=1&refresh=5s&from=now-15m&to=now)
 
 # Deploying with Helm Charts
 * Application can be deployed with helm chart using the command
@@ -62,10 +64,13 @@ http_server_requests_seconds_bucket
 helm upgrade --install ev-management ./helmchart 
 ```
 
-# Limitations && TODO
-  * Unit tests
-  * POST/PUT location conversion from text to point and vice versa
-  * VIN data is not unique in spreadsheet.
-    Vehicle to Utility mapping in load schema needs to be fixed because of this issue
-  * Maintaining container registry and using suggested docker registry
-  * helm chart deployment
+# TODO
+* Unit tests
+* POST/PUT location conversion from text to point and vice versa
+* Maintaining container registry and using suggested docker registry
+* helm chart deployment
+ 
+# Limitations
+* VIN data is not unique in spreadsheet.
+  Vehicle to Utility mapping in load schema needs to be fixed because of this issue
+

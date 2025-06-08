@@ -1,7 +1,9 @@
 package com.ev.management.demo.entity;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.ev.management.demo.dto.VehicleDTO;
 import jakarta.persistence.*;
@@ -176,10 +178,16 @@ public class Vehicle {
         vehicleDTO.setFuelEligibility(fuelEligibility.getDescription());
 
         StringBuilder builder = new StringBuilder();
+        Set<String> utilitySet = new HashSet<>();
         for(Utility utility: utilities) {
+            if(utilitySet.contains(utility.getName())) continue;
             builder.append(utility.getName()).append("|");
+            utilitySet.add(utility.getName());
         }
-        //builder.setLength(builder.length()-1);
+        utilitySet.clear();
+
+        if(builder.length() > 1)
+            builder.setLength(builder.length()-1);
         vehicleDTO.setUtility(builder.toString());
         return vehicleDTO;
     }
