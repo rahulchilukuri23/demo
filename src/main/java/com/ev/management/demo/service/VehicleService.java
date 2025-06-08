@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +45,8 @@ public class VehicleService {
         vehicle.setVin(dto.getVin());
         vehicle.setElectricRange(dto.getElectricRange());
         vehicle.setBaseMsrp(dto.getBaseMsrp());
+        vehicle.setLegislativeDistrict(dto.getLegislativeDistrict());
+        vehicle.setDolVehicleId(dto.getDolVehicleId());
 
         // FuelEligibility
         FuelEligibility fuelEligibility = fuelEligibilityRepository
@@ -57,9 +58,8 @@ public class VehicleService {
                 });
         vehicle.setFuelEligibility(fuelEligibility);
 
-        // Location (if postal code present)
-        if (dto.getPostalCode() != null) {
-            Location location = locationRepository.findByPostalCode(dto.getPostalCode())
+        if (dto.getPostalCode() != null && dto.getCity()!= null && dto.getCounty() != null && dto.getState() != null) {
+            Location location = locationRepository.findByPostalCodeAndCityAndCountyAndStateCode(dto.getPostalCode(), dto.getCity(), dto.getCounty(), dto.getState())
                     .orElseGet(() -> {
                         Location loc = new Location();
                         loc.setCity(dto.getCity());
@@ -122,8 +122,11 @@ public class VehicleService {
                 .orElseThrow(() -> new EntityNotFoundException("Vehicle with VIN " + dto.getVin() + " not found"));
 
         // Update fields
+        vehicle.setVin(dto.getVin());
         vehicle.setElectricRange(dto.getElectricRange());
         vehicle.setBaseMsrp(dto.getBaseMsrp());
+        vehicle.setLegislativeDistrict(dto.getLegislativeDistrict());
+        vehicle.setDolVehicleId(dto.getDolVehicleId());
 
         vehicle.setFuelEligibility(
                 fuelEligibilityRepository.findByDescription(dto.getFuelEligibility())
@@ -131,7 +134,7 @@ public class VehicleService {
         );
 
         vehicle.setLocation(
-                locationRepository.findByPostalCode(dto.getPostalCode())
+                locationRepository.findByPostalCodeAndCityAndCountyAndStateCode(dto.getPostalCode(), dto.getCity(), dto.getCounty(), dto.getState())
                         .orElseThrow(() -> new EntityNotFoundException("Location not found: " + dto.getPostalCode()))
         );
 

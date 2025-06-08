@@ -2,7 +2,12 @@
 CREATE SCHEMA IF NOT EXISTS ev_management;
 
 -- 2. Create the user with a secure password
-CREATE ROLE IF NOT EXISTS ev_management_user WITH LOGIN PASSWORD 'A35Hj5e%^Z';
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ev_management_user') THEN
+        CREATE ROLE ev_management_user WITH LOGIN PASSWORD 'A35Hj5e%^Z';
+    END IF;
+END $$;
 
 -- 3. Grant privileges on the schema
 GRANT USAGE, CREATE ON SCHEMA ev_management TO ev_management_user;

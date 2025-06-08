@@ -179,7 +179,7 @@ public class Vehicle {
         for(Utility utility: utilities) {
             builder.append(utility.getName()).append("|");
         }
-        builder.setLength(builder.length()-1);
+        //builder.setLength(builder.length()-1);
         vehicleDTO.setUtility(builder.toString());
         return vehicleDTO;
     }
