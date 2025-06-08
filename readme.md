@@ -17,7 +17,7 @@ psql -U ev_management_user -d ev_management -f load-schema.sql
 ```
 * But running docker compose up at root of project will provision docker containers for database to be used locally
 * Open a sql client and connect to this db with the credentials laid out in docker compose file
-  * run the schema.sql, load ev_staging table manually(gui) and point it to csv file, load-schema.sql from under src/main/resources/db directory
+* run the schema.sql, load ev_staging table manually(gui) and point it to csv file, load-schema.sql from under src/main/resources/db directory
  
 # Application
 * Run the spring boot application in an IDE of your choice
@@ -32,11 +32,27 @@ psql -U ev_management_user -d ev_management -f load-schema.sql
 * Workflow
  
   ![img.png](img.png)
-* Prometheus end point: http://localhost:8080/actuator/prometheus
-* Metrics can be obtained using the url. Default credentials admin/admin and there will be a prompt to change password the first time
-``` 
-http://localhost:3000/
+* Prometheus UI:
+  ``` 
+  http://localhost:9090/status
+  http://localhost:9090/config
+  http://localhost:9090/targets
+  http://localhost:9090/service-discovery?search=#EvManagementMetrics
+  Prometheus metrics end point: http://localhost:8080/actuator/prometheus
+  ```
+* Metrics can be obtained using the url. 
+  Default credentials admin/admin, skip credential change on prompt
+  ``` 
+  http://localhost:3000/
+  ```
+* Below metrics can be added in graphana dashboard as visualization
 ```
+spring_data_repository_invocations_seconds_count
+spring_data_repository_invocations_seconds_sum
+spring_data_repository_invocations_seconds_max
+http_server_requests_seconds_bucket
+```
+* A dashboard is provisioned [here](http://localhost:3000/d/ev-management-metrics/application-metrics-dashboard?orgId=1&refresh=15s)
 
 # Deploying with Helm Charts
 * Application can be deployed with helm chart using the command
@@ -46,10 +62,10 @@ http://localhost:3000/
 helm upgrade --install ev-management ./helmchart 
 ```
 
-* Incomplete at the moment
-  * PUT request
-  * POST/PUT location conversion from text to point and vice versa
-  * Vehicle to Utility mapping in load schema needs to be fixed
+# Limitations && TODO
   * Unit tests
+  * POST/PUT location conversion from text to point and vice versa
+  * VIN data is not unique in spreadsheet.
+    Vehicle to Utility mapping in load schema needs to be fixed because of this issue
   * Maintaining container registry and using suggested docker registry
-  * Grafana dashboard not loading up the datasources
+  * helm chart deployment

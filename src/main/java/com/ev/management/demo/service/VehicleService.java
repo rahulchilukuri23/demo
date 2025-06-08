@@ -132,11 +132,19 @@ public class VehicleService {
                 fuelEligibilityRepository.findByDescription(dto.getFuelEligibility())
                         .orElseThrow(() -> new EntityNotFoundException("Fuel eligibility not found: " + dto.getFuelEligibility()))
         );
+        vehicle.getFuelEligibility().setDescription(dto.getFuelEligibility());
 
         vehicle.setLocation(
                 locationRepository.findByPostalCodeAndCityAndCountyAndStateCode(dto.getPostalCode(), dto.getCity(), dto.getCounty(), dto.getState())
                         .orElseThrow(() -> new EntityNotFoundException("Location not found: " + dto.getPostalCode()))
         );
+        Location loc = vehicle.getLocation();
+        loc.setCity(dto.getCity());
+        loc.setCounty(dto.getCounty());
+        loc.setStateCode(dto.getState());
+        loc.setPostalCode(dto.getPostalCode());
+        loc.setCoordinates(VehicleDTO.getLocation(dto.getVehicleLocation()));
+        loc.setCensusTract(dto.getCensusTract());
 
         // Split the CSV into utility names
         String[] utilityNames = dto.getUtility().split("\\|");
@@ -161,11 +169,16 @@ public class VehicleService {
                 vehicleModelRepository.findByMakeIgnoreCaseAndModelIgnoreCaseAndModelYear(dto.getMake(), dto.getModel(), dto.getModelYear())
                         .orElseThrow(() -> new EntityNotFoundException("Vehicle model not found: " + dto.getMake() + " " + dto.getModel()))
         );
+        VehicleModel vm = vehicle.getModel();
+        vm.setMake(dto.getMake());
+        vm.setModel(dto.getModel());
+        vm.setModelYear(dto.getModelYear());
 
         vehicle.setType(
                 vehicleTypeRepository.findByType(dto.getVehicleType())
                         .orElseThrow(() -> new EntityNotFoundException("Vehicle type not found: " + dto.getVehicleType()))
         );
+        vehicle.getType().setType(dto.getVehicleType());
 
         // Save updated entity
         return vehicleRepository.save(vehicle);

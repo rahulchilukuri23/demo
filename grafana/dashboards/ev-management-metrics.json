@@ -1,0 +1,89 @@
+{
+  "title": "Application Metrics Dashboard",
+  "uid": "ev-management-metrics",
+  "schemaVersion": 30,
+  "version": 1,
+  "refresh": "15s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "CPU Usage (5m rate)",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(node_cpu_seconds_total{mode!=\"idle\"}[5m])) by (instance)",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "tooltip": {
+        "shared": true,
+        "sort": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Memory Usage (Available bytes)",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "node_memory_MemAvailable_bytes",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "lines": true,
+      "linewidth": 2
+    },
+    {
+      "id": 3,
+      "title": "Spring Data Repository Invocations",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(spring_data_repository_invocations_seconds_count[1m])) by (repository)",
+          "legendFormat": "{{repository}}",
+          "refId": "A"
+        }
+      ],
+      "lines": true,
+      "linewidth": 2
+    },
+    {
+      "id": 4,
+      "title": "JDBC Connections",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "jdbc_connections",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "lines": true,
+      "linewidth": 2
+    },
+    {
+      "id": 5,
+      "title": "HTTP Server Requests Histogram",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_bucket[1m])",
+          "legendFormat": "{{le}}",
+          "refId": "A"
+        }
+      ],
+      "lines": true,
+      "linewidth": 2
+    }
+  ]
+}

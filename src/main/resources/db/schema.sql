@@ -81,6 +81,9 @@ CREATE TABLE IF NOT EXISTS ev_management.vehicle_utility (
          PRIMARY KEY (vehicle_id, utility_id)
 );
 
+ALTER TABLE ev_management.vehicle_utility
+ADD CONSTRAINT vehicle_utility_unique UNIQUE(vehicle_id, utility_id);
+
 -- 13. Staging table (for raw CSV imports)
 CREATE TABLE IF NOT EXISTS ev_management.staging_ev (
     vin VARCHAR(50),

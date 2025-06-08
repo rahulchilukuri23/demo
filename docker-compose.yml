@@ -8,17 +8,19 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
   grafana:
+    depends_on:
+      - prometheus
     image: grafana/grafana:9.5.2
     container_name: grafana
     ports:
       - "3000:3000"
     restart: unless-stopped
     volumes:
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
   postgres:
     image: postgis/postgis:17-3.4
-    #    image: postgres:17
     environment:
       POSTGRES_USER: ev_management_user
       POSTGRES_PASSWORD: A35Hj5e%^Z

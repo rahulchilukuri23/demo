@@ -85,12 +85,14 @@ ON CONFLICT (vin) DO NOTHING;
 -- ON CONFLICT DO NOTHING;
 
 INSERT INTO ev_management.vehicle_utility(vehicle_id, utility_id)
-SELECT DISTINCT
-    v.id AS vehicle_id,
-    u.id AS utility_id
-FROM ev_management.staging_ev s
-JOIN ev_management.vehicle v ON v.vin = s.vin
-JOIN LATERAL unnest(string_to_array(s.utility, '|')) AS util_name(name) ON TRUE
-JOIN ev_management.utility u ON u.name = TRIM(util_name.name)
-WHERE s.utility IS NOT NULL and util_name.name <> ''
+SELECT a.id,min(b.id) from
+(select v.id,
+          unnest(string_to_array(utility, '|')) AS tag
+    from ev_management.staging_ev a,
+        ev_management.vehicle v
+    where a.vin = v.vin and (a.utility <> '' || a.utility is not null))  a ,
+     ev_management.utility b
+     where tag <> ''
+     and a.tag = b.name
+     group by a.id
 ON CONFLICT DO NOTHING;
