@@ -29,9 +29,9 @@ psql -U ev_management_user -d ev_management -f load-schema.sql
  
 * Swagger restdocs for reference
  
-  ![Actuator Endpoints](rdme_restdocs_actuator.png)
+  ![Actuator Endpoints](readme_images/rdme_restdocs_actuator.png)
  
-  ![REST Endpoints](rdme_restdocs_restendpoints.png) 
+  ![REST Endpoints](readme_images/rdme_restdocs_restendpoints.png) 
 
 * To test the rest points using curl, please follow the below documentation 
    
@@ -41,7 +41,7 @@ psql -U ev_management_user -d ev_management -f load-schema.sql
 * Prometheus to scrape for metrics and grafana for monitoring
 * Workflow
 
-  ![img.png](rdme_obs_mon_img.png)
+  ![img.png](readme_images/rdme_obs_mon_img.png)
 
 ## Observability
 * Prometheus UI:
@@ -73,7 +73,7 @@ psql -U ev_management_user -d ev_management -f load-schema.sql
   ```
 * A sneak peek of the dashboard can be seen below
  
-   ![img_1.png](rdme_grafana_dashboard_local.png)
+   ![img_1.png](readme_images/rdme_grafana_dashboard_local.png)
 
 # Deploying with Helm Charts
 * Presented helm chart components under helmchart directory and includes templates for deployment, service, hpa. 
