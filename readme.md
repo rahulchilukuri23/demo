@@ -26,8 +26,16 @@ psql -U ev_management_user -d ev_management -f load-schema.sql
 * Spring rest docs provide an interface to test the rest endpoints. (rest of the auto generated rest end points can be ignored)
   * http://localhost:8080/swagger-ui/index.html#/vehicle-controller
   * http://localhost:8080/swagger-ui/index.html#/Actuator/scrape
-* To test the rest points using curl, please follow the below documentation
-  * [REST ENDPOINTS](rest.md)   
+ 
+* Swagger restdocs for reference
+ 
+  ![Actuator Endpoints](rdme_restdocs_actuator.png)
+ 
+  ![REST Endpoints](rdme_restdocs_restendpoints.png) 
+
+* To test the rest points using curl, please follow the below documentation 
+   
+  [curl rest spec](rest.md)
  
 # Observability and Monitoring
 * Prometheus to scrape for metrics and grafana for monitoring
