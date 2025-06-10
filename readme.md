@@ -3,10 +3,11 @@
 # Prerequisites to run locally
 * Java 21 or higher
 * Docker runtime and docker compose to run services like prometheus, grafana, postgresql
+* Preferably in linux/unix environments
 
-# DB Schema 
+# DB Schema and Necessary application infrastructure
 
-* make run command set's up the postgresql db, prometheus and grafana containers.
+* make run command set's up the postgresql db, prometheus, grafana and the application containers.
   ```
   make all      # start infrastructure, build the app, build Docker image
   make run      # launch the app
@@ -18,7 +19,7 @@
 * Open a sql client and connect to this db with the credentials laid out in docker compose file
 * run the schema.sql, load ev_staging table manually(gui) and point it to csv file, load-schema.sql from under src/main/resources/db directory
  
-# Starting the application
+# Test the application
 * run `make logs` in a separate terminal to see application logs
 * Spring rest docs provide an interface to test the rest endpoints. (rest of the auto generated rest end points can be ignored)
   * http://localhost:8080/swagger-ui/index.html#/vehicle-controller
@@ -86,7 +87,7 @@
 * Maintaining container registry and using suggested docker registry
 * helm chart deployment
  
-# Limitations
+# Shortcomings
 * VIN data is not unique in spreadsheet or unable to get the full context of EV population data.
   Same VIN is associated with multiple locations
   Vehicle to Utility mapping in load schema may need fixing
