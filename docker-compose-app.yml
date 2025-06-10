@@ -1,0 +1,12 @@
+services:
+  ev-management:
+    image: ev-management:1.0.0
+    container_name: ev-management
+    ports:
+      - "8080:8080"
+    networks:
+      - ev_management_network
+
+networks:
+  ev_management_network:
+    driver: bridge

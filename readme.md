@@ -2,27 +2,24 @@
 
 # Prerequisites to run locally
 * Java 21 or higher
-* Docker runtime
-* IDE to run spring boot application due to lack of k8s cluster and container registry setup locally
+* Docker runtime and docker compose to run services like prometheus, grafana, postgresql
 
 # DB Schema 
-* sql scripts are located at /src/main/resources/db
-* These scripts are to be run on postgresql server along with the csv file from https://data.wa.gov/api/views/f6w7-q2d2/rows.csv?accessType=DOWNLOAD
-* Or can be executed using a psql client.
-* Need to update the path of the file on load-schema-staging-table.sql first when that script is to be run
-* Run these commands to prepopulate data from the csv file
-```
-psql -U ev_management_user -d ev_management -f schema.sql
-psql -U ev_management_user -d ev_management -f load-schema-staging-table.sql
-psql -U ev_management_user -d ev_management -f load-schema.sql
-```
-# Setting up DB locally
-* Running `docker compose up` at root of the repo will provision docker containers for postgres, grafana, prometheus to be used locally
+
+* make run command set's up the postgresql db, prometheus and grafana containers.
+  ```
+  make all      # start infrastructure, build the app, build Docker image
+  make run      # launch the app
+  make logs     # stream app logs
+  make down     # stop the app container
+  make clean    # clean target build + image
+  ```
+* Do not test the REST endpoints yet
 * Open a sql client and connect to this db with the credentials laid out in docker compose file
 * run the schema.sql, load ev_staging table manually(gui) and point it to csv file, load-schema.sql from under src/main/resources/db directory
  
-# Application
-* Run the spring boot application in an IDE of your choice
+# Starting the application
+* run `make logs` in a separate terminal to see application logs
 * Spring rest docs provide an interface to test the rest endpoints. (rest of the auto generated rest end points can be ignored)
   * http://localhost:8080/swagger-ui/index.html#/vehicle-controller
   * http://localhost:8080/swagger-ui/index.html#/Actuator/scrape
@@ -86,7 +83,6 @@ psql -U ev_management_user -d ev_management -f load-schema.sql
 
 # TODO
 * Integration tests
-* Fixing Makefile and Dockerfile
 * Maintaining container registry and using suggested docker registry
 * helm chart deployment
  
