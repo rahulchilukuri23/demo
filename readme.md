@@ -6,8 +6,7 @@
 * Preferably in linux/unix environments
 
 # DB Schema and Necessary application infrastructure
-
-* make run command set's up the postgresql db, prometheus, grafana and the application containers.
+* make run command set's up the postgresql db with data, prometheus, grafana and the application containers.
   ```
   make all      # start infrastructure, build the app, build Docker image
   make run      # launch the app
@@ -15,9 +14,7 @@
   make down     # stop the app container
   make clean    # clean target build + image
   ```
-* Do not test the REST endpoints yet
-* Open a sql client and connect to this db with the credentials laid out in docker compose file
-* run the schema.sql, load ev_staging table manually(gui) and point it to csv file, load-schema.sql from under src/main/resources/db directory
+
  
 # Test the application
 * run `make logs` in a separate terminal to see application logs

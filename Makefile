@@ -14,23 +14,29 @@ DOCKER_BUILD   := $(DOCKER) build -t $(IMAGE_NAME) .
 
 # Docker Compose
 DC             := docker-compose
-COMPOSE_START  := docker-compose-start.yml
+COMPOSE_INIT   := docker-compose-init.yml
 COMPOSE_APP    := docker-compose-app.yml
 
 # Network (if needed manually)
 NETWORK_NAME   := ev_management_network
 
+CSV_FILE             := src/main/resources/db/data.csv
+CSV_URL              := "https://data.wa.gov/api/views/f6w7-q2d2/rows.csv?accessType=DOWNLOAD"
+CSV_PATH             := src/main/resources/db/data.csv
+
 .PHONY: all prerequisites build docker run logs down clean
 
-## Full pipeline: start infra, build app, build image
-all: prerequisites build docker
+# CSV download target
+$(CSV_PATH):
+	mkdir -p $(dir $(CSV_PATH))
+	wget -O $(CSV_PATH) $(CSV_URL)
 
 ## Start supporting services (if any)
-prerequisites:
-	$(DC) -f $(COMPOSE_START) up -d
+prerequisites: $(CSV_PATH)
+	$(DC) -f $(COMPOSE_INIT) up -d
 
 ## Build the JAR
-build:
+build: prerequisites
 	$(MVN_BUILD)
 
 ## Build Docker image

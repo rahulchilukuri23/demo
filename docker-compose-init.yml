@@ -1,7 +1,6 @@
 networks:
   ev_management_network:
     driver: bridge
-
 services:
   prometheus:
     image: prom/prometheus:v2.44.0
@@ -29,6 +28,7 @@ services:
       - ev_management_network
   postgres:
     image: postgis/postgis:17-3.4
+    container_name: postgresql
     environment:
       POSTGRES_USER: ev_management_user
       POSTGRES_PASSWORD: A35Hj5e%^Z
@@ -37,8 +37,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ~/Downloads/Electric_Vehicle_Population_Data.csv:/tmp/Electric_Vehicle_Population_Data.csv
-      # - ./src/main/resources/db:/docker-entrypoint-initdb.d
+      - ./src/main/resources/db:/docker-entrypoint-initdb.d
     networks:
       - ev_management_network
 

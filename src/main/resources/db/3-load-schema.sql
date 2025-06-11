@@ -1,4 +1,3 @@
-
 -- Fuel eligibility
 INSERT INTO ev_management.fuel_eligibility(description)
 SELECT DISTINCT fuel_eligibility
@@ -63,27 +62,6 @@ FROM ev_management.staging_ev s
 ON CONFLICT (vin) DO NOTHING;
 
 -- Vehicle ↔ Utilities many-to-many inserts
---INSERT INTO ev_management.vehicle_utility(vehicle_id, utility_id)
---SELECT DISTINCT
---    v.id AS vehicle_id,
---    u.id AS utility_id
---FROM ev_management.staging_ev s
---         JOIN ev_management.vehicle v ON v.vin = s.vin
---         JOIN LATERAL unnest(string_to_array(s.utility, '|')) AS util_name(name) ON
---         JOIN ev_management.utility u ON u.name = TRIM(util_name.name)
---WHERE s.utility IS NOT NULL
---ON CONFLICT DO NOTHING;
-
--- INSERT INTO ev_management.vehicle_utility(vehicle_id, utility_id)
--- SELECT a.id,b.id from (select v.id,
---                               unnest(string_to_array(utility, '|')) AS tag
---                        from ev_management.staging_ev a,
---                             ev_management.vehicle v
---                        where a.vin = v.vin) a , ev_management.utility b  where tag <> ''
---                                                                            and a.tag = b.name
-
--- ON CONFLICT DO NOTHING;
-
 INSERT INTO ev_management.vehicle_utility(vehicle_id, utility_id)
 SELECT a.id,min(b.id) from
 (select v.id,
