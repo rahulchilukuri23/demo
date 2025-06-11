@@ -1,12 +1,14 @@
 # Documentation
 
 # Prerequisites to run locally
-* Java 21 or higher
-* Docker runtime and docker compose to run services like prometheus, grafana, postgresql
-* Preferably in linux/unix environments
+- Java 21 or higher
+- Maven 3.6.3 or higher
+- Make
+- Docker runtime and Docker Compose (to run services such as Prometheus, Grafana, and PostgreSQL)
+- Preferably a Linux or Unix-based environment
 
 # DB Schema and Necessary application infrastructure
-* make run command set's up the postgresql db with data, prometheus, grafana and the application containers.
+* make run command set's up the postgresql db with data, prometheus, grafana and starts the application container.
   ```
   make all      # start infrastructure, build the app, build Docker image
   make run      # launch the app
@@ -14,9 +16,8 @@
   make down     # stop the app container
   make clean    # clean target build + image
   ```
-
  
-# Test the application
+# Testing the application
 * run `make logs` in a separate terminal to see application logs
 * Spring rest docs provide an interface to test the rest endpoints. (rest of the auto generated rest end points can be ignored)
   * http://localhost:8080/swagger-ui/index.html#/vehicle-controller

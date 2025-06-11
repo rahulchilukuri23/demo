@@ -1,8 +1,8 @@
 replicaCount: 2
 
 image:
-  repository: myregistry/ev-management
-  tag: latest
+  repository: ev-management
+  tag: 1.0.0
   pullPolicy: IfNotPresent
 
 service:
@@ -36,6 +36,3 @@ autoscaling:
 
 config:
   ENVIRONMENT: "dev"
-
-secrets:
-  DATABASE_PASSWORD: "changeme"
